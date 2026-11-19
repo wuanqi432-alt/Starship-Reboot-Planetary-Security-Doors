@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STARSHIP REBOOT: PLANETARY SECURITY DOORS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --hud-bg: #182038;
+      --hud-border: #63739c;
+      --hud-dark: #090d1a;
+      --accent-yellow: #facc15;
+      --accent-cyan: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-red: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #060913;
+      color: #f8fafc;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .font-clean {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Crisp retro outline text matching reference image captions */
+    .pixel-text-shadow {
+      text-shadow:
+        -2px -2px 0 #050811,
+         2px -2px 0 #050811,
+        -2px  2px 0 #050811,
+         2px  2px 0 #050811,
+         0px  3px 0 #050811;
+    }
+
+    .pixel-text-shadow-sm {
+      text-shadow:
+        -1px -1px 0 #050811,
+         1px -1px 0 #050811,
+        -1px  1px 0 #050811,
+         1px  1px 0 #050811,
+         0px  2px 0 #050811;
+    }
+
+    /* Reference-inspired top-left dark slate-navy HUD panel */
+    .retro-hud-box {
+      background-color: #182038;
+      border: 3px solid #64748b;
+      box-shadow:
+        inset 0 0 0 2px #0f172a,
+        0 0 0 2px #050811,
+        0 6px 0 rgba(5, 8, 17, 0.85);
+    }
+
+    /* Chunky arcade push buttons */
+    .arcade-btn {
+      font-family: 'Press Start 2P', monospace;
+      border: 3px solid #e2e8f0;
+      box-shadow:
+        0 0 0 2px #050811,
+        0 5px 0 #1e293b;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.12s ease, border-color 0.12s ease;
+      cursor: pointer;
+    }
+
+    .arcade-btn:hover {
+      border-color: #facc15;
+    }
+
+    .arcade-btn:active {
+      transform: translateY(3px);
+      box-shadow:
+        0 0 0 2px #050811,
+        0 2px 0 #1e293b;
+    }
+
+    .arcade-btn-amber {
+      background-color: #eab308;
+      color: #090d1a;
+      border-color: #fef08a;
+      box-shadow:
+        0 0 0 2px #050811,
+        0 5px 0 #854d0e;
+    }
+
+    .arcade-btn-amber:hover {
+      background-color: #facc15;
+      border-color: #ffffff;
+    }
+
+    .arcade-btn-amber:active {
+      box-shadow:
+        0 0 0 2px #050811,
+        0 2px 0 #854d0e;
+    }
+
+    .arcade-btn-cyan {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #7dd3fc;
+      box-shadow:
+        0 0 0 2px #050811,
+        0 5px 0 #0c4a6e;
+    }
+
+    .arcade-btn-cyan:hover {
+      background-color: #0ea5e9;
+      border-color: #fef08a;
+    }
+
+    .arcade-btn-cyan:active {
+      box-shadow:
+        0 0 0 2px #050811,
+        0 2px 0 #0c4a6e;
+    }
+
+    canvas.pixel-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Custom subtle scrollbar for Door 5 on compact viewports */
+    .pixel-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .pixel-scroll::-webkit-scrollbar-track {
+      background: #0b1021;
+      border-left: 2px solid #1e293b;
+    }
+    .pixel-scroll::-webkit-scrollbar-thumb {
+      background: #475569;
+      border: 1px solid #94a3b8;
+    }
+
+    /* Blast door sliding animation panels */
+    .blast-door-half {
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      background-color: #161e31;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.03) 0px,
+          rgba(255, 255, 255, 0.03) 4px,
+          transparent 4px,
+          transparent 16px
+        ),
+        linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    }
+
+    .blast-door-left.open {
+      transform: translateX(-102%);
+    }
+
+    .blast-door-right.open {
+      transform: translateX(102%);
+    }
+
+    /* Hazard stripes along blast door center seam */
+    .hazard-seam {
+      background: repeating-linear-gradient(
+        -45deg,
+        #facc15,
+        #facc15 8px,
+        #1e293b 8px,
+        #1e293b 16px
+      );
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.03); filter: brightness(1.12); }
+    }
+
+    .cta-pulse {
+      animation: pulseGlow 1.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="w-screen h-screen overflow-hidden flex items-center justify-center bg-[#060913]">
+  <!-- Main Full-Viewport Game Container -->
+  <div id="gameViewport" class="relative w-full h-full max-w-[1440px] max-h-[900px] bg-[#080c18] border-0 sm:border-4 border-[#334155] shadow-2xl overflow-hidden flex flex-col">
+
+    <!-- Persistent Top-Left Reference-Style HUD + Top-Right STEM Course Info Button -->
+    <div class="absolute top-3 left-3 right-3 z-30 flex items-start justify-between pointer-events-none gap-2">
+      <!-- Top-Left Retro HUD Badge (inspired by reference image) -->
+      <div class="retro-hud-box px-2.5 py-2 flex items-center gap-2.5 pointer-events-auto">
+        <!-- Pixel Emblem Canvas -->
+        <canvas id="hudAvatarCanvas" width="24" height="24" class="w-7 h-7 sm:w-8 sm:h-8 border-2 border-[#94a3b8] bg-[#0f172a] pixel-canvas shrink-0"></canvas>
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-1.5 text-[9px] sm:text-[10px] leading-none">
+            <span id="hudDot" class="inline-block w-2 h-2 bg-emerald-400"></span>
+            <span id="hudSubLabel" class="text-slate-300">ACTIVE</span>
+          </div>
+          <div id="hudMainTitle" class="text-[10px] sm:text-xs text-white leading-none tracking-wide">
+            STARSHIP OPS
+          </div>
+          <!-- Segmented Yellow Progress Bar -->
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <div id="hudSegments" class="flex items-center gap-1">
+              <span class="w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200"></span>
+              <span class="w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200"></span>
+              <span class="w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200"></span>
+              <span class="w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200"></span>
+              <span class="w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200"></span>
+            </div>
+            <span id="hudCounter" class="text-[9px] sm:text-[10px] text-yellow-300 leading-none">SYS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top-Right Utility Controls (Audio + Course Info Modal Trigger) -->
+      <div class="flex items-center gap-2 pointer-events-auto">
+        <button id="btnToggleSfx" type="button" class="retro-hud-box px-2.5 py-2 text-[9px] sm:text-[10px] text-emerald-300 hover:border-yellow-400 cursor-pointer">
+          SFX:ON
+        </button>
+        <button id="btnCourseInfo" type="button" class="retro-hud-box px-2.5 py-2 text-[9px] sm:text-[10px] text-yellow-300 hover:border-yellow-400 cursor-pointer">
+          COURSE INFO
+        </button>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SCREEN 1: INTRO COCKPIT PIXEL ANIMATION (NO REPLAY/PAUSE BUTTONS)    -->
+    <!-- =================================================================== -->
+    <section id="screenIntro" class="relative w-full h-full flex items-center justify-center">
+      <canvas id="introCanvas" class="pixel-canvas w-full h-full"></canvas>
+
+      <!-- Phase 4 Final Alert Overlay & Single Action Button -->
+      <div id="introPromptOverlay" class="hidden absolute inset-x-0 bottom-6 sm:bottom-10 z-20 flex flex-col items-center justify-center px-4 text-center">
+        <div class="max-w-2xl w-full bg-[#090d1a]/90 border-4 border-[#38bdf8] px-4 py-4 sm:px-6 sm:py-5 shadow-[0_0_0_3px_#050811,0_10px_30px_rgba(0,0,0,0.9)]">
+          <p class="text-[10px] sm:text-xs md:text-sm leading-relaxed text-white pixel-text-shadow-sm mb-4">
+            HEAD TO THE STORAGE ROOM TO GET A SPARE CHIP AND REBOOT THE SPACECRAFT.
+          </p>
+          <button id="btnGoStorage" type="button" class="arcade-btn arcade-btn-amber cta-pulse px-5 py-3.5 sm:px-7 sm:py-4 text-[11px] sm:text-xs md:text-sm">
+            Go to the storage room
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SCREEN 2: LABORATORY SECURITY DOORS (5 INTERACTIVE GATES)            -->
+    <!-- =================================================================== -->
+    <section id="screenDoors" class="hidden relative w-full h-full flex flex-col justify-between pt-16 sm:pt-20 pb-3 px-3 sm:px-6 bg-[#0b1020]">
+      <!-- Subtle sci-fi grid & bulkhead background -->
+      <div class="absolute inset-0 pointer-events-none opacity-25" style="background-image: radial-gradient(#38bdf8 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+      <!-- Top Door Status & Lock LED Strip -->
+      <div class="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[#11182c] border-2 border-[#334155] px-3 py-2">
+        <div class="flex items-center gap-2 text-[10px] sm:text-xs text-sky-300">
+          <span>LAB SECTOR</span>
+          <span class="text-slate-500">//</span>
+          <span id="doorHeaderTitle" class="text-yellow-300">SECURITY DOOR 1 OF 5</span>
+        </div>
+
+        <!-- 5 Door Lock Indicators -->
+        <div id="doorLockPips" class="flex items-center gap-1.5 sm:gap-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Center Blast Door Frame & Interactive Terminal -->
+      <div class="relative z-10 flex-1 my-2.5 border-4 border-[#475569] bg-[#0d1324] shadow-[inset_0_0_30px_rgba(0,0,0,0.85)] overflow-hidden flex flex-col">
+        <!-- Animated Blast Door Shutters (Slide open when puzzle is solved) -->
+        <div id="doorShutterLeft" class="blast-door-half blast-door-left pointer-events-none absolute inset-y-0 left-0 w-1/2 z-30 border-r-4 border-[#050811] flex items-center justify-end opacity-0">
+          <div class="hazard-seam w-3 h-full"></div>
+        </div>
+        <div id="doorShutterRight" class="blast-door-half blast-door-right pointer-events-none absolute inset-y-0 right-0 w-1/2 z-30 border-l-4 border-[#050811] flex items-center justify-start opacity-0">
+          <div class="hazard-seam w-3 h-full"></div>
+        </div>
+
+        <!-- Terminal Header Prompt -->
+        <div class="bg-[#162038] border-b-2 border-[#334155] px-3 py-2.5 sm:px-5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div id="puzzleSubtitle" class="text-[9px] text-sky-400 mb-1">SECURITY PROTOCOL 01</div>
+            <h2 id="puzzlePrompt" class="text-[10px] sm:text-xs md:text-sm text-white leading-snug">
+              MATCH EACH PLANET IMAGE TO ITS NAME.
+            </h2>
+          </div>
+          <div id="doorFeedbackBadge" class="hidden shrink-0 px-3 py-1.5 border-2 text-[9px] sm:text-[10px]">
+            ACCESS DENIED
+          </div>
+        </div>
+
+        <!-- Puzzle Workspace (Swapped per door 1..5) -->
+        <div id="puzzleWorkspace" class="relative flex-1 w-full h-full overflow-y-auto pixel-scroll p-3 sm:p-4 flex flex-col justify-center">
+          <!-- Dynamic Door Content Injected Here -->
+        </div>
+      </div>
+
+      <!-- Bottom Terminal Action Bar -->
+      <div class="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[#11182c] border-2 border-[#334155] px-3 py-2">
+        <div id="doorHintText" class="text-[9px] sm:text-[10px] text-slate-300 leading-relaxed">
+          SOLVE THE SECURITY LOCK TO OPEN THE DOOR.
+        </div>
+        <div id="doorActionButtons" class="flex items-center gap-2 ml-auto">
+          <!-- Dynamic verify/reset buttons injected per door -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- SCREEN 3: STORAGE ROOM & SPACECRAFT REBOOT ENDING                   -->
+    <!-- =================================================================== -->
+    <section id="screenEnding" class="hidden relative w-full h-full flex items-center justify-center">
+      <canvas id="endingCanvas" class="pixel-canvas w-full h-full"></canvas>
+
+      <!-- Ending Victory Banner & Play Again -->
+      <div id="endingOverlay" class="hidden absolute inset-x-0 bottom-6 sm:bottom-10 z-20 flex flex-col items-center px-4 text-center">
+        <div class="max-w-2xl w-full bg-[#090d1a]/92 border-4 border-emerald-400 px-4 py-4 sm:px-6 sm:py-5 shadow-[0_0_0_3px_#050811,0_10px_30px_rgba(0,0,0,0.9)]">
+          <div class="text-[10px] sm:text-xs text-yellow-300 mb-2">SPARE CONTROL CHIP INSTALLED</div>
+          <h2 class="text-xs sm:text-base md:text-lg text-emerald-400 pixel-text-shadow-sm mb-3">
+            SPACECRAFT REBOOTED! MISSION COMPLETE
+          </h2>
+          <p class="text-[9px] sm:text-[10px] text-slate-200 leading-relaxed mb-4">
+            ALL 5 PLANETARY SECURITY DOORS UNLOCKED. CABIN POWER AND DEEP-SPACE NAVIGATION ARE ONLINE.
+          </p>
+          <button id="btnPlayAgain" type="button" class="arcade-btn arcade-btn-cyan px-5 py-3 text-[10px] sm:text-xs">
+            PLAY AGAIN
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODAL: STEM COURSE INTRO & LEARNING OUTCOMES (ASSIGNMENT SPEC)      -->
+    <!-- =================================================================== -->
+    <div id="courseModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+      <div class="retro-hud-box max-w-2xl w-full max-h-[88vh] overflow-y-auto pixel-scroll p-4 sm:p-6 text-left">
+        <div class="flex items-center justify-between border-b-2 border-[#475569] pb-3 mb-4">
+          <h3 class="text-xs sm:text-sm text-yellow-300">STEM COURSE INTRODUCTION</h3>
+          <button id="btnCloseCourseModal" type="button" class="arcade-btn bg-slate-800 text-white px-2.5 py-1.5 text-[10px]">
+            X
+          </button>
+        </div>
+
+        <div class="space-y-4 font-clean text-xs sm:text-sm text-slate-200 leading-relaxed">
+          <div>
+            <span class="font-pixel text-[10px] text-sky-400 block mb-1">1. STEM THEME</span>
+            <p class="font-semibold text-white">Exploring the Eight Planets of the Solar System: Starship Reboot Mission</p>
+          </div>
+
+          <div>
+            <span class="font-pixel text-[10px] text-sky-400 block mb-1">2. STEM BRANCHES</span>
+            <p><strong class="text-emerald-300">Science (Astronomy &amp; Planetary Science)</strong> &amp; <strong class="text-emerald-300">Technology (Interactive Simulation &amp; Systems Troubleshooting)</strong></p>
+          </div>
+
+          <div>
+            <span class="font-pixel text-[10px] text-sky-400 block mb-1">3. GAME OVERVIEW</span>
+            <p>
+              Designed for middle school students, this narrative retro pixel-art web game puts players in the role of a starship pilot whose cockpit loses power after a coffee spill during space turbulence. To reach the Storage Room and retrieve the spare control chip, players must unlock 5 planetary security doors by identifying planets, matching Earth's surface gravity (9.8 m/s²), recognizing Martian iron-oxide soil, comparing planetary volumes, and recalling key planetary traits.
+            </p>
+          </div>
+
+          <div>
+            <span class="font-pixel text-[10px] text-sky-400 block mb-1">4. LEARNING OUTCOMES (LOs)</span>
+            <ul class="list-disc pl-5 space-y-2">
+              <li>
+                <strong class="text-yellow-300">LO1 (Planet Identification &amp; Order):</strong> Students will be able to accurately identify all eight planets of the Solar System by visual appearance, relative volume, and sequential position from the Sun.
+              </li>
+              <li>
+                <strong class="text-yellow-300">LO2 (Core Planetary Characteristics):</strong> Students will be able to recall and match key physical features of each planet (such as Earth's 9.8 m/s² gravity, Mars's red iron-oxide soil, Venus's greenhouse heat and retrograde rotation, Jupiter's massive size and Great Red Spot, Saturn's rings and low density, Uranus's 98° axial tilt, and Neptune's extreme winds).
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-3 border-t-2 border-[#475569] flex justify-end">
+          <button id="btnCloseCourseModalBottom" type="button" class="arcade-btn arcade-btn-amber px-4 py-2.5 text-[10px]">
+            RESUME MISSION
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. RETRO WEB AUDIO SYNTHESIZER (SAFE USER-GESTURE UNLOCKED)
+      // =========================================================================
+      class RetroAudio {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+        }
+
+        init() {
+          if (!this.enabled) return null;
+          try {
+            if (!this.ctx) {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtx) this.ctx = new AudioCtx();
+            }
+            if (this.ctx && this.ctx.state === 'suspended') {
+              this.ctx.resume().catch(() => {});
+            }
+            return this.ctx;
+          } catch (e) {
+            return null;
+          }
+        }
+
+        tone(freq, duration, type = 'square', gainVal = 0.07, delay = 0) {
+          const ctx = this.init();
+          if (!ctx) return;
+          try {
+            const now = ctx.currentTime + delay;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(gainVal, now + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + duration + 0.02);
+          } catch (e) {}
+        }
+
+        playClick() {
+          this.tone(660, 0.06, 'square', 0.05);
+        }
+
+        playSip() {
+          this.tone(360, 0.08, 'triangle', 0.07, 0);
+          this.tone(540, 0.09, 'triangle', 0.07, 0.07);
+        }
+
+        playSpill() {
+          const ctx = this.init();
+          if (!ctx) return;
+          try {
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(85, now);
+            osc.frequency.linearRampToValueAtTime(42, now + 0.85);
+            gain.gain.setValueAtTime(0.14, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.92);
+          } catch (e) {}
+        }
+
+        playPowerDown() {
+          this.tone(240, 0.35, 'sawtooth', 0.07, 0);
+          this.tone(140, 0.45, 'sawtooth', 0.07, 0.25);
+          this.tone(65, 0.55, 'sawtooth', 0.07, 0.5);
+        }
+
+        playError() {
+          this.tone(190, 0.14, 'sawtooth', 0.08, 0);
+          this.tone(135, 0.22, 'sawtooth', 0.08, 0.13);
+        }
+
+        playDoorUnlock() {
+          this.tone(523.25, 0.1, 'square', 0.07, 0);
+          this.tone(659.25, 0.1, 'square', 0.07, 0.1);
+          this.tone(783.99, 0.16, 'square', 0.07, 0.2);
+          // Hydraulic slide rumble
+          this.tone(95, 0.55, 'sawtooth', 0.06, 0.28);
+        }
+
+        playVictory() {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((n, idx) => {
+            this.tone(n, idx === 3 ? 0.4 : 0.12, 'square', 0.08, idx * 0.12);
+          });
+        }
+      }
+
+      const sfx = new RetroAudio();
+
+      // =========================================================================
+      // 2. TOP-LEFT REFERENCE HUD RENDERER (PIXEL EMBLEM + SEGMENTED BAR)
+      // =========================================================================
+      const hudAvatarCanvas = document.getElementById('hudAvatarCanvas');
+      const hudAvatarCtx = hudAvatarCanvas.getContext('2d');
+      hudAvatarCtx.imageSmoothingEnabled = false;
+
+      function drawHudEmblem(mode) {
+        const c = hudAvatarCtx;
+        c.clearRect(0, 0, 24, 24);
+        c.fillStyle = '#0f172a';
+        c.fillRect(0, 0, 24, 24);
+
+        if (mode === 'pilot') {
+          // Helmeted pilot portrait in reference style
+          c.fillStyle = '#38bdf8';
+          c.fillRect(5, 3, 14, 15);
+          c.fillStyle = '#f8fafc';
+          c.fillRect(6, 4, 12, 13);
+          c.fillStyle = '#0284c7';
+          c.fillRect(8, 7, 9, 6);
+          c.fillStyle = '#bae6fd';
+          c.fillRect(9, 8, 4, 2);
+          c.fillStyle = '#f97316';
+          c.fillRect(4, 18, 16, 5);
+        } else if (mode === 'door') {
+          // Security lock icon
+          c.fillStyle = '#facc15';
+          c.fillRect(8, 4, 8, 2);
+          c.fillRect(7, 6, 2, 5);
+          c.fillRect(15, 6, 2, 5);
+          c.fillStyle = '#eab308';
+          c.fillRect(5, 11, 14, 10);
+          c.fillStyle = '#090d1a';
+          c.fillRect(11, 14, 2, 4);
+        } else {
+          // Glowing spare control chip
+          c.fillStyle = '#4ade80';
+          c.fillRect(6, 6, 12, 12);
+          c.fillStyle = '#064e3b';
+          c.fillRect(8, 8, 8, 8);
+          c.fillStyle = '#facc15';
+          c.fillRect(10, 10, 4, 4);
+          // Pins
+          c.fillStyle = '#cbd5e1';
+          for (let i = 7; i <= 15; i += 4) {
+            c.fillRect(i, 3, 2, 3);
+            c.fillRect(i, 18, 2, 3);
+            c.fillRect(3, i, 3, 2);
+            c.fillRect(18, i, 3, 2);
+          }
+        }
+      }
+
+      function updateTopHud({ subLabel, mainTitle, activeSegments, totalSegments, counterText, dotColor, emblem }) {
+        document.getElementById('hudSubLabel').textContent = subLabel;
+        document.getElementById('hudMainTitle').textContent = mainTitle;
+        document.getElementById('hudCounter').textContent = counterText;
+        const dot = document.getElementById('hudDot');
+        dot.className = `inline-block w-2 h-2 ${dotColor}`;
+
+        const segContainer = document.getElementById('hudSegments');
+        segContainer.innerHTML = '';
+        for (let i = 0; i < totalSegments; i++) {
+          const span = document.createElement('span');
+          if (i < activeSegments) {
+            span.className = 'w-2.5 sm:w-3 h-1.5 bg-yellow-400 border border-yellow-200';
+          } else {
+            span.className = 'w-2.5 sm:w-3 h-1.5 bg-slate-800 border border-slate-600';
+          }
+          segContainer.appendChild(span);
+        }
+        drawHudEmblem(emblem);
+      }
+
+      // =========================================================================
+      // 3. PIXEL ART PLANET GENERATOR (USED ON DOOR 1 & VISUALS)
+      // =========================================================================
+      function renderPixelPlanetToCanvas(targetCanvas, planetKey) {
+        const size = 64;
+        targetCanvas.width = size;
+        targetCanvas.height = size;
+        const c = targetCanvas.getContext('2d');
+        c.imageSmoothingEnabled = false;
+        c.clearRect(0, 0, size, size);
+
+        const cx = 32;
+        const cy = 32;
+        const r = planetKey === 'jupiter' ? 25 : 21;
+
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const dx = x - cx;
+            const dy = y - cy;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist <= r) {
+              // Lighting shade from top-left
+              const light = (-dx * 0.55 - dy * 0.55) / r;
+              let color = '#94a3b8';
+
+              if (planetKey === 'mars') {
+                // Reddish iron-oxide planet with dark craters & polar cap
+                color = light > 0.25 ? '#f97316' : light > -0.25 ? '#dc2626' : '#7f1d1d';
+                if (dy < -r + 4 && Math.abs(dx) < 8) color = '#f8fafc'; // Polar ice cap
+                if ((dx + 6) ** 2 + (dy + 3) ** 2 < 18) color = '#991b1b';
+                if ((dx - 7) ** 2 + (dy - 6) ** 2 < 14) color = '#7f1d1d';
+              } else if (planetKey === 'earth') {
+                // Blue oceans & green continents + white clouds
+                color = light > 0.2 ? '#38bdf8' : light > -0.25 ? '#0284c7' : '#1e3a8a';
+                const land1 = (dx + 6) ** 2 * 0.8 + (dy + 4) ** 2 < 52;
+                const land2 = (dx - 8) ** 2 + (dy - 5) ** 2 * 0.7 < 36;
+                if (land1 || land2) {
+                  color = light > 0 ? '#4ade80' : '#15803d';
+                }
+                if (dy < -r + 3 || (Math.abs(dy + 9) < 2 && dx > -10 && dx < 4)) {
+                  color = '#f8fafc';
+                }
+              } else if (planetKey === 'venus') {
+                // Thick yellowish-gold sulfuric cloud bands
+                const band = Math.sin(dy * 0.45 + Math.cos(dx * 0.2) * 1.5);
+                if (light < -0.35) {
+                  color = '#92400e';
+                } else if (band > 0.25) {
+                  color = '#fef08a';
+                } else if (band > -0.25) {
+                  color = '#facc15';
+                } else {
+                  color = '#d97706';
+                }
+              } else if (planetKey === 'jupiter') {
+                // Giant banded gas planet + Great Red Spot
+                const bandVal = Math.sin(dy * 0.42);
+                if (light < -0.45) {
+                  color = '#78350f';
+                } else if (bandVal > 0.45) {
+                  color = '#fef3c7';
+                } else if (bandVal > 0.0) {
+                  color = '#fdba74';
+                } else if (bandVal > -0.45) {
+                  color = '#c2410c';
+                } else {
+                  color = '#9a3412';
+                }
+                // Great Red Spot
+                if (((dx - 7) / 6.5) ** 2 + ((dy - 7) / 4.2) ** 2 <= 1) {
+                  color = '#ef4444';
+                }
+              }
+
+              // Dark pixel outline on outermost rim
+              if (dist > r - 1.3) {
+                color = '#050811';
+              }
+              c.fillStyle = color;
+              c.fillRect(x, y, 1, 1);
+            }
+          }
+        }
+      }
+
+      // =========================================================================
+      // 4. SCREEN 1: INTRO COCKPIT ANIMATION (CLEAN, NO PLAYBACK CONTROLS)
+      // =========================================================================
+      const introCanvas = document.getElementById('introCanvas');
+      const introCtx = introCanvas.getContext('2d');
+      const PIXEL_W = 320;
+      const PIXEL_H = 200;
+
+      const offIntro = document.createElement('canvas');
+      offIntro.width = PIXEL_W;
+      offIntro.height = PIXEL_H;
+      const pctx = offIntro.getContext('2d');
+      pctx.imageSmoothingEnabled = false;
+
+      const STARS = Array.from({ length: 72 }, (_, i) => ({
+        x: ((i * 53 + 17) % 214) + 53,
+        y: ((i * 31 + 11) % 94) + 12,
+        size: i % 8 === 0 ? 2 : 1,
+        phase: i * 0.7
+      }));
+
+      let introTime = 0;
+      let introRunning = true;
+      let introPromptShown = false;
+      let introSipTriggered = 0;
+      let introSpillTriggered = false;
+      let introPowerTriggered = false;
+      let droplets = [];
+      let puddleGrowth = 0;
+
+      function resetIntroState() {
+        introTime = 0;
+        introRunning = true;
+        introPromptShown = false;
+        introSipTriggered = 0;
+        introSpillTriggered = false;
+        introPowerTriggered = false;
+        puddleGrowth = 0;
+        document.getElementById('introPromptOverlay').classList.add('hidden');
+
+        droplets = [];
+        const vectors = [
+          { vx: -38, vy: -24 }, { vx: -24, vy: -35 }, { vx: -12, vy: -29 },
+          { vx: 8, vy: -38 }, { vx: 22, vy: -30 }, { vx: 36, vy: -22 },
+          { vx: -46, vy: -15 }, { vx: 44, vy: -18 }, { vx: -16, vy: -40 },
+          { vx: 15, vy: -34 }
+        ];
+        vectors.forEach((v, idx) => {
+          droplets.push({
+            x: 158 + ((idx % 3) - 1) * 3,
+            y: 120,
+            vx: v.vx,
+            vy: v.vy,
+            g: 95,
+            landed: false,
+            size: idx % 3 === 0 ? 3 : 2
+          });
+        });
+      }
+
+      function pxRect(ctx, x, y, w, h, col) {
+        ctx.fillStyle = col;
+        ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+      }
+
+      function getIntroPhase(t) {
+        if (t < 3.0) return { idx: 0, local: t };
+        if (t < 5.5) return { idx: 1, local: t - 3.0 };
+        if (t < 7.6) return { idx: 2, local: t - 5.5 };
+        return { idx: 3, local: t - 7.6 };
+      }
+
+      function drawCockpitScene(ctx, t, phaseIdx, localT, powerLevel, shake) {
+        ctx.fillStyle = '#050811';
+        ctx.fillRect(0, 0, PIXEL_W, PIXEL_H);
+
+        ctx.save();
+        ctx.translate(shake.x, shake.y);
+
+        // Panoramic deep-space viewport
+        const wx = 50, wy = 12, ww = 220, wh = 96;
+        pxRect(ctx, wx - 4, wy - 4, ww + 8, wh + 8, '#1e293b');
+        pxRect(ctx, wx - 2, wy - 2, ww + 4, wh + 4, '#475569');
+        pxRect(ctx, wx, wy, ww, wh, '#040711');
+
+        // Stars
+        for (const s of STARS) {
+          const tw = Math.sin(t * 2.5 + s.phase);
+          if (tw > -0.5) {
+            pxRect(ctx, s.x, s.y, s.size, s.size, tw > 0.5 ? '#ffffff' : '#7dd3fc');
+          }
+        }
+
+        // Distant ringed planet & red planet visible outside window
+        pxRect(ctx, 212, 32, 24, 3, '#64748b');
+        pxRect(ctx, 216, 26, 16, 16, '#0284c7');
+        pxRect(ctx, 218, 28, 12, 12, '#38bdf8');
+        pxRect(ctx, 210, 33, 28, 2, '#cbd5e1');
+
+        pxRect(ctx, 82, 50, 14, 14, '#c2410c');
+        pxRect(ctx, 84, 52, 10, 10, '#f97316');
+
+        // Bulkhead walls & ceiling light
+        pxRect(ctx, 0, 0, 46, PIXEL_H, powerLevel > 0.1 ? '#1e293b' : '#090d16');
+        pxRect(ctx, 274, 0, 46, PIXEL_H, powerLevel > 0.1 ? '#1e293b' : '#090d16');
+        pxRect(ctx, 0, 0, PIXEL_W, 10, powerLevel > 0.1 ? '#1e293b' : '#090d16');
+        pxRect(ctx, 132, 4, 56, 5, '#334155');
+
+        if (powerLevel > 0.08) {
+          pxRect(ctx, 136, 5, 48, 3, powerLevel > 0.5 ? '#fef08a' : '#facc15');
+          ctx.fillStyle = `rgba(254, 240, 138, ${(powerLevel * 0.2).toFixed(2)})`;
+          ctx.fillRect(46, 10, 228, 126);
+        } else {
+          // Emergency dark mode red LEDs
+          const redLed = Math.sin(t * 6) > 0 ? '#ef4444' : '#7f1d1d';
+          pxRect(ctx, 54, 22, 3, 3, redLed);
+          pxRect(ctx, 263, 22, 3, 3, redLed);
+        }
+
+        // Captain's chair & Pilot
+        pxRect(ctx, 114, 72, 42, 46, powerLevel > 0.1 ? '#334155' : '#111827');
+        pxRect(ctx, 118, 76, 34, 36, powerLevel > 0.1 ? '#475569' : '#1f2937');
+
+        let sipY = 0;
+        let tiltMug = false;
+        if (phaseIdx === 0) {
+          const cyc = localT % 1.4;
+          if (cyc >= 0.4 && cyc <= 1.0) {
+            const s = Math.sin(((cyc - 0.4) / 0.6) * Math.PI);
+            sipY = -Math.round(s * 5);
+            tiltMug = s > 0.35;
+          }
+        }
+
+        const suitMain = powerLevel > 0.1 ? '#f1f5f9' : '#334155';
+        const suitShade = powerLevel > 0.1 ? '#94a3b8' : '#1e293b';
+        const trimOrange = powerLevel > 0.1 ? '#f97316' : '#7c2d12';
+        const skinCol = powerLevel > 0.1 ? '#fdba74' : '#573624';
+        const hairCol = powerLevel > 0.1 ? '#1c1917' : '#09090b';
+
+        pxRect(ctx, 122, 84 + sipY, 26, 26, suitShade);
+        pxRect(ctx, 124, 84 + sipY, 22, 24, suitMain);
+        pxRect(ctx, 130, 84 + sipY, 10, 4, trimOrange);
+        pxRect(ctx, 125, 95 + sipY, 20, 2, trimOrange);
+
+        const headY = 62 + sipY;
+        pxRect(ctx, 127, headY, 16, 18, hairCol);
+        pxRect(ctx, 129, headY + 4, 13, 13, skinCol);
+        pxRect(ctx, 128, headY + 2, 14, 4, hairCol);
+
+        // Eyes & expression
+        if (phaseIdx === 1 || phaseIdx === 2) {
+          pxRect(ctx, 136, headY + 8, 2, 3, '#050811');
+          pxRect(ctx, 140, headY + 8, 2, 3, '#050811');
+          pxRect(ctx, 138, headY + 13, 3, 3, '#7f1d1d');
+        } else {
+          pxRect(ctx, 136, headY + 9, 2, 2, '#050811');
+          pxRect(ctx, 140, headY + 9, 2, 2, '#050811');
+          pxRect(ctx, 138, headY + 13, 3, 1, '#9a3412');
+        }
+
+        // Coffee Mug & Arm
+        let mugX = 152;
+        let mugY = 98 + sipY;
+        if (phaseIdx === 0 && tiltMug) {
+          mugX = 145;
+          mugY = 78 + sipY;
+        } else if (phaseIdx === 1) {
+          mugX = 156 + Math.round(Math.sin(localT * 48) * 4);
+          mugY = 94 + Math.round(Math.cos(localT * 52) * 3);
+        } else if (phaseIdx >= 2) {
+          mugX = 155;
+          mugY = 114;
+        }
+
+        pxRect(ctx, 142, 92 + sipY, 6, 6, suitMain);
+        pxRect(ctx, 147, 94 + sipY, Math.max(4, mugX - 147), 4, skinCol);
+
+        pxRect(ctx, mugX + 8, mugY + 2, 3, 5, powerLevel > 0.1 ? '#cbd5e1' : '#334155');
+        pxRect(ctx, mugX, mugY, 8, 8, powerLevel > 0.1 ? '#ffffff' : '#475569');
+        if (phaseIdx === 0) {
+          pxRect(ctx, mugX + 1, mugY + 1, 6, 2, '#451a03');
+          if (!tiltMug) {
+            const st = Math.floor(localT * 4) % 2;
+            pxRect(ctx, mugX + 2, mugY - 2 - st, 1, 1, '#e2e8f0');
+            pxRect(ctx, mugX + 5, mugY - 4 + st, 1, 1, '#e2e8f0');
+          }
+        }
+
+        // Control Console
+        pxRect(ctx, 42, 126, 236, 10, powerLevel > 0.1 ? '#334155' : '#0f172a');
+        pxRect(ctx, 42, 136, 236, 64, powerLevel > 0.1 ? '#1e293b' : '#090d16');
+        pxRect(ctx, 42, 125, 236, 2, powerLevel > 0.1 ? '#64748b' : '#1e293b');
+
+        if (powerLevel > 0.12) {
+          pxRect(ctx, 62, 144, 24, 14, '#082f49');
+          pxRect(ctx, 65, 148, 12, 2, '#38bdf8');
+          pxRect(ctx, 65, 152, 16, 2, '#4ade80');
+
+          pxRect(ctx, 228, 144, 28, 14, '#052e16');
+          pxRect(ctx, 232, 149, 4, 4, '#4ade80');
+          pxRect(ctx, 239, 149, 4, 4, '#facc15');
+          pxRect(ctx, 246, 149, 4, 4, '#38bdf8');
+
+          for (let x = 104; x <= 204; x += 14) {
+            pxRect(ctx, x, 146, 8, 5, '#475569');
+            pxRect(ctx, x + 1, 147, 6, 3, x % 28 === 0 ? '#38bdf8' : '#facc15');
+          }
+        } else {
+          pxRect(ctx, 62, 144, 24, 14, '#060911');
+          pxRect(ctx, 228, 144, 28, 14, '#060911');
+          if (Math.sin(t * 6) > 0) {
+            pxRect(ctx, 158, 147, 4, 3, '#ef4444');
+          }
+        }
+
+        // Spilled coffee puddle & sparks
+        if (phaseIdx >= 1 && puddleGrowth > 0.02) {
+          const sw = Math.round(14 + puddleGrowth * 58);
+          const sh = Math.round(3 + puddleGrowth * 5);
+          pxRect(ctx, 162 - Math.floor(sw / 2), 131 - Math.floor(sh / 2), sw, sh, '#271005');
+          pxRect(ctx, 162 - Math.floor(sw * 0.35), 130 - Math.floor(sh / 2), Math.max(6, Math.round(sw * 0.7)), sh + 1, '#451a03');
+          const drip = Math.min(14, Math.round(puddleGrowth * 14));
+          pxRect(ctx, 146, 136, 3, drip, '#451a03');
+          pxRect(ctx, 168, 136, 4, Math.max(2, drip - 3), '#271005');
+
+          // Electrical short-circuit sparks during Phase 1 & early Phase 2
+          if (phaseIdx === 1 || (phaseIdx === 2 && localT < 0.7)) {
+            if (Math.sin(t * 42) > 0.1) {
+              pxRect(ctx, 154 + Math.round(Math.sin(t * 30) * 14), 124, 2, 2, '#fef08a');
+              pxRect(ctx, 168 + Math.round(Math.cos(t * 37) * 12), 122, 2, 2, '#38bdf8');
+            }
+          }
+        }
+
+        for (const d of droplets) {
+          pxRect(ctx, d.x, d.y, d.size, d.size, d.landed ? '#271005' : '#78350f');
+        }
+
+        ctx.restore();
+
+        // Bottom narrative captions during Phases 0, 1, 2 (Phase 3 uses crisp DOM overlay + button)
+        if (phaseIdx < 3) {
+          const captions = [
+            'CRUISING IN DEEP SPACE... PILOT ENJOYS HOT COFFEE.',
+            'SUDDEN TREMOR! COFFEE SPILLS ON THE CONTROL CONSOLE!',
+            'SHORT CIRCUIT! ALL CABIN LIGHTS SHUT DOWN...'
+          ];
+          const text = captions[phaseIdx];
+          ctx.fillStyle = 'rgba(5, 8, 17, 0.84)';
+          ctx.fillRect(10, PIXEL_H - 22, PIXEL_W - 20, 16);
+          ctx.font = 'bold 6px "Press Start 2P", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#050811';
+          ctx.fillText(text, PIXEL_W / 2 + 1, PIXEL_H - 13);
+          ctx.fillStyle = phaseIdx === 1 ? '#facc15' : '#ffffff';
+          ctx.fillText(text, PIXEL_W / 2, PIXEL_H - 14);
+          ctx.textAlign = 'left';
+        }
+      }
+
+      let lastIntroTs = null;
+      function tickIntro(ts) {
+        if (lastIntroTs === null) lastIntroTs = ts;
+        const dt = Math.min(0.05, (ts - lastIntroTs) / 1000);
+        lastIntroTs = ts;
+
+        if (introRunning) {
+          introTime += dt;
+          const { idx, local } = getIntroPhase(introTime);
+
+          // Update top-left HUD dynamically during intro
+          if (idx === 0) {
+            updateTopHud({
+              subLabel: 'ACTIVE',
+              mainTitle: 'CABIN CRUISE',
+              activeSegments: 5,
+              totalSegments: 5,
+              counterText: '100%',
+              dotColor: 'bg-emerald-400',
+              emblem: 'pilot'
+            });
+            const sipIdx = Math.floor(local / 1.4) + 1;
+            if (local % 1.4 > 0.5 && introSipTriggered < sipIdx && sipIdx <= 2) {
+              introSipTriggered = sipIdx;
+              sfx.playSip();
+            }
+          } else if (idx === 1) {
+            updateTopHud({
+              subLabel: 'WARNING',
+              mainTitle: 'CONSOLE SPILL',
+              activeSegments: 2,
+              totalSegments: 5,
+              counterText: '40%',
+              dotColor: 'bg-yellow-400',
+              emblem: 'pilot'
+            });
+            if (!introSpillTriggered) {
+              introSpillTriggered = true;
+              sfx.playSpill();
+            }
+            puddleGrowth = Math.min(1, puddleGrowth + dt * 1.25);
+            for (const d of droplets) {
+              if (!d.landed) {
+                d.x += d.vx * dt;
+                d.y += d.vy * dt;
+                d.vy += d.g * dt;
+                if (d.y >= 136) {
+                  d.y = 136;
+                  d.landed = true;
+                }
+              }
+            }
+          } else if (idx === 2) {
+            updateTopHud({
+              subLabel: 'OFFLINE',
+              mainTitle: 'POWER LOSS',
+              activeSegments: 0,
+              totalSegments: 5,
+              counterText: '0%',
+              dotColor: 'bg-rose-500',
+              emblem: 'pilot'
+            });
+            if (!introPowerTriggered) {
+              introPowerTriggered = true;
+              sfx.playPowerDown();
+            }
+          } else if (idx === 3) {
+            updateTopHud({
+              subLabel: 'ALERT',
+              mainTitle: 'CHIP NEEDED',
+              activeSegments: 0,
+              totalSegments: 5,
+              counterText: '0/5',
+              dotColor: 'bg-sky-400',
+              emblem: 'door'
+            });
+            if (!introPromptShown) {
+              introPromptShown = true;
+              document.getElementById('introPromptOverlay').classList.remove('hidden');
+            }
+          }
+
+          // Compute power & camera shake
+          let power = 1.0;
+          if (idx === 1) power = Math.sin(local * 38) > 0.7 ? 0.7 : 1.0;
+          else if (idx === 2) {
+            if (local < 0.3) power = 0.2;
+            else if (local < 0.5) power = 0.8;
+            else if (local < 0.7) power = 0.1;
+            else power = Math.max(0, 1 - (local - 0.7) * 2.2);
+          } else if (idx === 3) power = 0.0;
+
+          let shake = { x: 0, y: 0 };
+          if (idx === 1 && local < 1.3) {
+            const amp = 4.5 * (1 - local / 1.3);
+            shake = {
+              x: Math.round(Math.sin(local * 70) * amp),
+              y: Math.round(Math.cos(local * 76) * amp * 0.8)
+            };
+          }
+
+          drawCockpitScene(pctx, introTime, idx, local, power, shake);
+
+          const rect = introCanvas.parentElement.getBoundingClientRect();
+          if (introCanvas.width !== Math.floor(rect.width) || introCanvas.height !== Math.floor(rect.height)) {
+            introCanvas.width = Math.max(320, Math.floor(rect.width));
+            introCanvas.height = Math.max(200, Math.floor(rect.height));
+            introCtx.imageSmoothingEnabled = false;
+          }
+          introCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
+          introCtx.drawImage(offIntro, 0, 0, PIXEL_W, PIXEL_H, 0, 0, introCanvas.width, introCanvas.height);
+        }
+
+        requestAnimationFrame(tickIntro);
+      }
+
+      // =========================================================================
+      // 5. LABORATORY SECURITY DOORS CONTROLLER (5 INTERACTIVE PUZZLES)
+      // =========================================================================
+      let currentDoorIndex = 0; // 0 to 4 (Doors 1 to 5)
+      let isDoorTransitioning = false;
+
+      const doorHeaderTitle = document.getElementById('doorHeaderTitle');
+      const doorLockPips = document.getElementById('doorLockPips');
+      const puzzleSubtitle = document.getElementById('puzzleSubtitle');
+      const puzzlePrompt = document.getElementById('puzzlePrompt');
+      const puzzleWorkspace = document.getElementById('puzzleWorkspace');
+      const doorHintText = document.getElementById('doorHintText');
+      const doorActionButtons = document.getElementById('doorActionButtons');
+      const doorFeedbackBadge = document.getElementById('doorFeedbackBadge');
+      const shutterLeft = document.getElementById('doorShutterLeft');
+      const shutterRight = document.getElementById('doorShutterRight');
+
+      function showDoorFeedback(isSuccess, message) {
+        doorFeedbackBadge.classList.remove('hidden');
+        if (isSuccess) {
+          doorFeedbackBadge.className = 'shrink-0 px-3 py-1.5 border-2 border-emerald-400 bg-emerald-950 text-emerald-300 text-[9px] sm:text-[10px]';
+        } else {
+          doorFeedbackBadge.className = 'shrink-0 px-3 py-1.5 border-2 border-rose-500 bg-rose-950 text-rose-300 text-[9px] sm:text-[10px]';
+        }
+        doorFeedbackBadge.textContent = message;
+      }
+
+      function clearDoorFeedback() {
+        doorFeedbackBadge.classList.add('hidden');
+      }
+
+      function renderDoorLockPips() {
+        doorLockPips.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          const pip = document.createElement('div');
+          const unlocked = i < currentDoorIndex;
+          const active = i === currentDoorIndex;
+          pip.className = unlocked
+            ? 'px-2 py-1 text-[9px] bg-emerald-500 text-slate-950 border-2 border-emerald-200'
+            : active
+              ? 'px-2 py-1 text-[9px] bg-yellow-400 text-slate-950 border-2 border-white'
+              : 'px-2 py-1 text-[9px] bg-slate-900 text-slate-500 border-2 border-slate-700';
+          pip.textContent = unlocked ? `D${i + 1}:OK` : `D${i + 1}`;
+          doorLockPips.appendChild(pip);
+        }
+      }
+
+      function unlockCurrentDoorAndAdvance() {
+        if (isDoorTransitioning) return;
+        isDoorTransitioning = true;
+        sfx.playDoorUnlock();
+        showDoorFeedback(true, 'ACCESS GRANTED - DOOR OPENING');
+
+        // Close blast shutters briefly then slide them open to reveal next door
+        shutterLeft.classList.remove('opacity-0', 'open');
+        shutterRight.classList.remove('opacity-0', 'open');
+
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            shutterLeft.classList.add('open');
+            shutterRight.classList.add('open');
+          }, 120);
+
+          setTimeout(() => {
+            shutterLeft.classList.add('opacity-0');
+            shutterRight.classList.add('opacity-0');
+            shutterLeft.classList.remove('open');
+            shutterRight.classList.remove('open');
+            isDoorTransitioning = false;
+
+            if (currentDoorIndex < 4) {
+              loadDoor(currentDoorIndex + 1);
+            } else {
+              startEndingSequence();
+            }
+          }, 920);
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // DOOR 1: PLANET IMAGE & NAME LINE-MATCHING (MARS, EARTH, VENUS, JUPITER)
+      // -----------------------------------------------------------------------
+      function buildDoor1() {
+        puzzleSubtitle.textContent = 'SECURITY DOOR 01 // VISUAL IDENTIFICATION';
+        puzzlePrompt.textContent = 'CONNECT EACH PLANET IMAGE TO ITS MATCHING NAME.';
+        doorHintText.textContent = 'CLICK A PLANET ON THE LEFT, THEN CLICK ITS NAME ON THE RIGHT.';
+
+        const leftPlanets = [
+          { id: 'mars', label: 'Mars' },
+          { id: 'earth', label: 'Earth' },
+          { id: 'venus', label: 'Venus' },
+          { id: 'jupiter', label: 'Jupiter' }
+        ];
+
+        // Shuffled right-side names
+        const rightNames = [
+          { id: 'jupiter', text: 'JUPITER' },
+          { id: 'mars', text: 'MARS' },
+          { id: 'venus', text: 'VENUS' },
+          { id: 'earth', text: 'EARTH' }
+        ];
+
+        let selectedPlanetId = null;
+        const connections = new Map(); // planetId -> nameId
+
+        puzzleWorkspace.innerHTML = `
+          <div id="d1Board" class="relative w-full max-w-3xl mx-auto flex items-center justify-between gap-6 sm:gap-12 py-2 px-2 sm:px-6">
+            <svg id="d1SvgLines" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+
+            <!-- Left Column: Pixel Planet Icons -->
+            <div class="relative z-20 flex flex-col gap-3 sm:gap-4 w-32 sm:w-44">
+              ${leftPlanets.map(p => `
+                <button type="button" data-left-id="${p.id}" class="d1-left-node flex items-center justify-between bg-[#162038] hover:bg-[#1e2c4d] border-3 border-[#475569] px-2.5 py-1.5 sm:px-3 sm:py-2 transition cursor-pointer">
+                  <canvas data-planet-canvas="${p.id}" class="w-10 h-10 sm:w-12 sm:h-12 pixel-canvas"></canvas>
+                  <span class="w-3 h-3 rounded-full bg-sky-400 border-2 border-slate-950 shrink-0"></span>
+                </button>
+              `).join('')}
+            </div>
+
+            <!-- Right Column: Shuffled Planet Names -->
+            <div class="relative z-20 flex flex-col gap-3 sm:gap-4 w-36 sm:w-48">
+              ${rightNames.map(n => `
+                <button type="button" data-right-id="${n.id}" class="d1-right-node flex items-center justify-between bg-[#162038] hover:bg-[#1e2c4d] border-3 border-[#475569] px-3 py-3 sm:px-4 sm:py-3.5 text-[10px] sm:text-xs text-white transition cursor-pointer">
+                  <span class="w-3 h-3 rounded-full bg-yellow-400 border-2 border-slate-950 shrink-0"></span>
+                  <span class="ml-auto">${n.text}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+        // Render custom pixel planets into each canvas
+        puzzleWorkspace.querySelectorAll('canvas[data-planet-canvas]').forEach((cv) => {
+          renderPixelPlanetToCanvas(cv, cv.getAttribute('data-planet-canvas'));
+        });
+
+        const board = document.getElementById('d1Board');
+        const svg = document.getElementById('d1SvgLines');
+        const leftBtns = Array.from(puzzleWorkspace.querySelectorAll('.d1-left-node'));
+        const rightBtns = Array.from(puzzleWorkspace.querySelectorAll('.d1-right-node'));
+
+        function redrawLines() {
+          const boardRect = board.getBoundingClientRect();
+          svg.innerHTML = '';
+
+          leftBtns.forEach((btn) => {
+            const pid = btn.getAttribute('data-left-id');
+            const isSelected = selectedPlanetId === pid;
+            const isConnected = connections.has(pid);
+            btn.style.borderColor = isSelected ? '#facc15' : isConnected ? '#38bdf8' : '#475569';
+          });
+
+          rightBtns.forEach((btn) => {
+            const rid = btn.getAttribute('data-right-id');
+            const used = Array.from(connections.values()).includes(rid);
+            btn.style.borderColor = used ? '#38bdf8' : '#475569';
+          });
+
+          connections.forEach((rid, pid) => {
+            const lBtn = leftBtns.find(b => b.getAttribute('data-left-id') === pid);
+            const rBtn = rightBtns.find(b => b.getAttribute('data-right-id') === rid);
+            if (!lBtn || !rBtn) return;
+
+            const lRect = lBtn.getBoundingClientRect();
+            const rRect = rBtn.getBoundingClientRect();
+            const x1 = lRect.right - boardRect.left - 8;
+            const y1 = lRect.top + lRect.height / 2 - boardRect.top;
+            const x2 = rRect.left - boardRect.left + 8;
+            const y2 = rRect.top + rRect.height / 2 - boardRect.top;
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', '#38bdf8');
+            line.setAttribute('stroke-width', '4');
+            line.setAttribute('stroke-dasharray', '6 4');
+            svg.appendChild(line);
+          });
+        }
+
+        leftBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            sfx.playClick();
+            clearDoorFeedback();
+            const pid = btn.getAttribute('data-left-id');
+            selectedPlanetId = selectedPlanetId === pid ? null : pid;
+            redrawLines();
+          });
+        });
+
+        rightBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            sfx.playClick();
+            clearDoorFeedback();
+            const rid = btn.getAttribute('data-right-id');
+            if (!selectedPlanetId) {
+              // Allow clicking an already-linked right node to select its paired left planet
+              for (const [k, v] of connections.entries()) {
+                if (v === rid) {
+                  connections.delete(k);
+                  redrawLines();
+                  return;
+                }
+              }
+              showDoorFeedback(false, 'SELECT A PLANET ON THE LEFT FIRST');
+              return;
+            }
+            // Remove any existing link pointing to this right node
+            for (const [k, v] of connections.entries()) {
+              if (v === rid) connections.delete(k);
+            }
+            connections.set(selectedPlanetId, rid);
+            selectedPlanetId = null;
+            redrawLines();
+          });
+        });
+
+        window.addEventListener('resize', redrawLines);
+
+        doorActionButtons.innerHTML = `
+          <button id="d1ResetBtn" type="button" class="arcade-btn bg-slate-800 text-slate-200 px-3 py-2 text-[9px] sm:text-[10px]">
+            CLEAR LINES
+          </button>
+          <button id="d1VerifyBtn" type="button" class="arcade-btn arcade-btn-amber px-4 py-2 text-[9px] sm:text-[10px]">
+            VERIFY LINKS
+          </button>
+        `;
+
+        document.getElementById('d1ResetBtn').addEventListener('click', () => {
+          sfx.playClick();
+          connections.clear();
+          selectedPlanetId = null;
+          clearDoorFeedback();
+          redrawLines();
+        });
+
+        document.getElementById('d1VerifyBtn').addEventListener('click', () => {
+          if (connections.size < 4) {
+            sfx.playError();
+            showDoorFeedback(false, 'CONNECT ALL 4 PLANETS FIRST');
+            return;
+          }
+          let allCorrect = true;
+          leftPlanets.forEach((p) => {
+            if (connections.get(p.id) !== p.id) allCorrect = false;
+          });
+
+          if (allCorrect) {
+            unlockCurrentDoorAndAdvance();
+          } else {
+            sfx.playError();
+            showDoorFeedback(false, 'INCORRECT MATCH - TRY AGAIN');
+          }
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // DOOR 2: ROTARY DIAL FOR EARTH'S GRAVITY COEFFICIENT (9.8)
+      // -----------------------------------------------------------------------
+      function buildDoor2() {
+        puzzleSubtitle.textContent = 'SECURITY DOOR 02 // GRAVITY CALIBRATION';
+        puzzlePrompt.textContent = "ROTATE THE DIAL TO EARTH'S GRAVITY COEFFICIENT (m/s²).";
+        doorHintText.textContent = 'DRAG THE ROTARY DIAL OR USE - / + BUTTONS TO SET 9.8.';
+
+        let currentVal = 4.0; // Starts away from 9.8
+
+        puzzleWorkspace.innerHTML = `
+          <div class="flex flex-col items-center justify-center gap-4 py-2">
+            <!-- Digital Readout Box -->
+            <div class="retro-hud-box px-5 py-3 text-center">
+              <div class="text-[9px] text-sky-400 mb-1">EARTH GRAVITY COEFFICIENT (g)</div>
+              <div id="d2Readout" class="text-lg sm:text-2xl text-yellow-300 tracking-wider">4.0 m/s²</div>
+            </div>
+
+            <!-- Interactive Rotary Gauge -->
+            <div class="relative flex items-center justify-center">
+              <canvas id="d2DialCanvas" width="220" height="220" class="w-44 h-44 sm:w-52 sm:h-52 cursor-grab active:cursor-grabbing touch-none"></canvas>
+            </div>
+
+            <!-- Precision Fine-Tune Buttons -->
+            <div class="flex items-center gap-3">
+              <button id="d2Minus1" type="button" class="arcade-btn bg-slate-800 text-white px-3 py-2 text-[10px]">-1.0</button>
+              <button id="d2Minus01" type="button" class="arcade-btn bg-slate-800 text-sky-300 px-3 py-2 text-[10px]">-0.1</button>
+              <button id="d2Plus01" type="button" class="arcade-btn bg-slate-800 text-sky-300 px-3 py-2 text-[10px]">+0.1</button>
+              <button id="d2Plus1" type="button" class="arcade-btn bg-slate-800 text-white px-3 py-2 text-[10px]">+1.0</button>
+            </div>
+          </div>
+        `;
+
+        const dialCanvas = document.getElementById('d2DialCanvas');
+        const dctx = dialCanvas.getContext('2d');
+        const readout = document.getElementById('d2Readout');
+
+        const MIN_G = 1.0;
+        const MAX_G = 20.0;
+
+        function valueToAngle(val) {
+          // Map 1.0..20.0 across -135 deg to +135 deg (0 deg = top)
+          const ratio = (val - MIN_G) / (MAX_G - MIN_G);
+          return (-135 + ratio * 270) * (Math.PI / 180);
+        }
+
+        function setGravityValue(newVal) {
+          const clamped = Math.max(MIN_G, Math.min(MAX_G, Math.round(newVal * 10) / 10));
+          if (clamped !== currentVal) {
+            currentVal = clamped;
+            sfx.tone(300 + currentVal * 22, 0.03, 'square', 0.03);
+          }
+          readout.textContent = `${currentVal.toFixed(1)} m/s²`;
+          drawDial();
+        }
+
+        function drawDial() {
+          const w = dialCanvas.width;
+          const h = dialCanvas.height;
+          const cx = w / 2;
+          const cy = h / 2;
+          dctx.clearRect(0, 0, w, h);
+
+          // Outer metallic bezel
+          dctx.beginPath();
+          dctx.arc(cx, cy, 98, 0, Math.PI * 2);
+          dctx.fillStyle = '#0f172a';
+          dctx.fill();
+          dctx.lineWidth = 6;
+          dctx.strokeStyle = '#64748b';
+          dctx.stroke();
+
+          // Tick marks around dial
+          for (let v = 1; v <= 20; v++) {
+            const ang = valueToAngle(v) - Math.PI / 2;
+            const innerR = v % 5 === 0 ? 72 : 79;
+            const outerR = 88;
+            dctx.beginPath();
+            dctx.moveTo(cx + Math.cos(ang) * innerR, cy + Math.sin(ang) * innerR);
+            dctx.lineTo(cx + Math.cos(ang) * outerR, cy + Math.sin(ang) * outerR);
+            dctx.lineWidth = v % 5 === 0 ? 3 : 2;
+            dctx.strokeStyle = v === 10 ? '#38bdf8' : '#94a3b8';
+            dctx.stroke();
+          }
+
+          // Inner rotatable knob
+          dctx.beginPath();
+          dctx.arc(cx, cy, 62, 0, Math.PI * 2);
+          dctx.fillStyle = '#1e293b';
+          dctx.fill();
+          dctx.lineWidth = 4;
+          dctx.strokeStyle = '#38bdf8';
+          dctx.stroke();
+
+          // Pointer needle
+          const needleAng = valueToAngle(currentVal) - Math.PI / 2;
+          dctx.beginPath();
+          dctx.moveTo(cx, cy);
+          dctx.lineTo(cx + Math.cos(needleAng) * 54, cy + Math.sin(needleAng) * 54);
+          dctx.lineWidth = 6;
+          dctx.strokeStyle = '#facc15';
+          dctx.stroke();
+
+          // Center cap
+          dctx.beginPath();
+          dctx.arc(cx, cy, 12, 0, Math.PI * 2);
+          dctx.fillStyle = '#facc15';
+          dctx.fill();
+        }
+
+        // Pointer drag rotation support (mouse + touch)
+        let dragging = false;
+        function updateFromPointer(clientX, clientY) {
+          const rect = dialCanvas.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          let deg = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI) + 90;
+          if (deg > 180) deg -= 360;
+          const clampedDeg = Math.max(-135, Math.min(135, deg));
+          const ratio = (clampedDeg + 135) / 270;
+          setGravityValue(MIN_G + ratio * (MAX_G - MIN_G));
+        }
+
+        dialCanvas.addEventListener('pointerdown', (e) => {
+          dragging = true;
+          clearDoorFeedback();
+          dialCanvas.setPointerCapture(e.pointerId);
+          updateFromPointer(e.clientX, e.clientY);
+        });
+        dialCanvas.addEventListener('pointermove', (e) => {
+          if (dragging) updateFromPointer(e.clientX, e.clientY);
+        });
+        dialCanvas.addEventListener('pointerup', () => { dragging = false; });
+        dialCanvas.addEventListener('pointercancel', () => { dragging = false; });
+
+        document.getElementById('d2Minus1').addEventListener('click', () => { clearDoorFeedback(); setGravityValue(currentVal - 1.0); });
+        document.getElementById('d2Minus01').addEventListener('click', () => { clearDoorFeedback(); setGravityValue(currentVal - 0.1); });
+        document.getElementById('d2Plus01').addEventListener('click', () => { clearDoorFeedback(); setGravityValue(currentVal + 0.1); });
+        document.getElementById('d2Plus1').addEventListener('click', () => { clearDoorFeedback(); setGravityValue(currentVal + 1.0); });
+
+        drawDial();
+
+        doorActionButtons.innerHTML = `
+          <button id="d2ConfirmBtn" type="button" class="arcade-btn arcade-btn-amber px-4 py-2 text-[9px] sm:text-[10px]">
+            CONFIRM VALUE
+          </button>
+        `;
+
+        document.getElementById('d2ConfirmBtn').addEventListener('click', () => {
+          if (Math.abs(currentVal - 9.8) < 0.01) {
+            unlockCurrentDoorAndAdvance();
+          } else {
+            sfx.playError();
+            showDoorFeedback(false, `INCORRECT (${currentVal.toFixed(1)}) - TRY AGAIN`);
+          }
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // DOOR 3: 4 SOIL TEST TUBES (SELECT MARS IRON-OXIDE RED SOIL)
+      // -----------------------------------------------------------------------
+      function buildDoor3() {
+        puzzleSubtitle.textContent = 'SECURITY DOOR 03 // PLANETARY GEOLOGY SCAN';
+        puzzlePrompt.textContent = 'SELECT THE TEST TUBE CONTAINING MARTIAN SOIL.';
+        doorHintText.textContent = 'CLUE: MARS SOIL IS RICH IN IRON OXIDE, GIVING IT A RUSTY RED COLOR.';
+
+        const tubes = [
+          {
+            id: 'lunar',
+            label: 'SAMPLE A',
+            desc: 'PALE GREY SILICATE DUST',
+            soilMain: '#94a3b8',
+            soilDark: '#64748b',
+            soilSpeck: '#cbd5e1'
+          },
+          {
+            id: 'mars',
+            label: 'SAMPLE B',
+            desc: 'RUSTY RED IRON-OXIDE SOIL',
+            soilMain: '#dc2626',
+            soilDark: '#991b1b',
+            soilSpeck: '#f97316'
+          },
+          {
+            id: 'basalt',
+            label: 'SAMPLE C',
+            desc: 'DARK CHARCOAL VOLCANIC ASH',
+            soilMain: '#334155',
+            soilDark: '#1e293b',
+            soilSpeck: '#475569'
+          },
+          {
+            id: 'sulfur',
+            label: 'SAMPLE D',
+            desc: 'GOLDEN SULFUR SAND',
+            soilMain: '#eab308',
+            soilDark: '#a16207',
+            soilSpeck: '#fef08a'
+          }
+        ];
+
+        let selectedTube = null;
+
+        puzzleWorkspace.innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 max-w-4xl mx-auto w-full py-2">
+            ${tubes.map(t => `
+              <button type="button" data-tube-id="${t.id}" class="d3-tube-card flex flex-col items-center bg-[#141d33] hover:bg-[#1b2744] border-4 border-[#475569] p-3 sm:p-4 transition cursor-pointer">
+                <div class="text-[10px] text-sky-300 mb-2">${t.label}</div>
+                <!-- Pixel Test Tube SVG -->
+                <svg viewBox="0 0 40 96" class="w-14 h-32 sm:w-16 sm:h-36 mb-3">
+                  <!-- Cork/Cap -->
+                  <rect x="11" y="2" width="18" height="7" fill="#d97706" stroke="#050811" stroke-width="2"/>
+                  <!-- Glass Rim -->
+                  <rect x="8" y="9" width="24" height="4" fill="#bae6fd" stroke="#050811" stroke-width="2"/>
+                  <!-- Glass Body -->
+                  <path d="M10 13 H30 V78 A10 10 0 0 1 10 78 Z" fill="rgba(186,230,253,0.16)" stroke="#7dd3fc" stroke-width="2.5"/>
+                  <!-- Soil Fill inside lower half -->
+                  <path d="M12 44 H28 V77 A8 8 0 0 1 12 77 Z" fill="${t.soilMain}"/>
+                  <rect x="12" y="64" width="16" height="14" fill="${t.soilDark}"/>
+                  <!-- Soil texture pixels -->
+                  <rect x="15" y="48" width="3" height="3" fill="${t.soilSpeck}"/>
+                  <rect x="22" y="54" width="3" height="3" fill="${t.soilSpeck}"/>
+                  <rect x="16" y="60" width="4" height="2" fill="${t.soilDark}"/>
+                  <!-- Glass shine highlight -->
+                  <rect x="13" y="16" width="2" height="54" fill="rgba(255,255,255,0.45)"/>
+                </svg>
+                <div class="text-[8px] sm:text-[9px] text-slate-200 text-center leading-snug">${t.desc}</div>
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        const cards = Array.from(puzzleWorkspace.querySelectorAll('.d3-tube-card'));
+        cards.forEach((card) => {
+          card.addEventListener('click', () => {
+            sfx.playClick();
+            clearDoorFeedback();
+            selectedTube = card.getAttribute('data-tube-id');
+            cards.forEach((c) => {
+              c.style.borderColor = c.getAttribute('data-tube-id') === selectedTube ? '#facc15' : '#475569';
+            });
+          });
+        });
+
+        doorActionButtons.innerHTML = `
+          <button id="d3VerifyBtn" type="button" class="arcade-btn arcade-btn-amber px-4 py-2 text-[9px] sm:text-[10px]">
+            ANALYZE SAMPLE
+          </button>
+        `;
+
+        document.getElementById('d3VerifyBtn').addEventListener('click', () => {
+          if (!selectedTube) {
+            sfx.playError();
+            showDoorFeedback(false, 'SELECT A TEST TUBE FIRST');
+            return;
+          }
+          if (selectedTube === 'mars') {
+            unlockCurrentDoorAndAdvance();
+          } else {
+            sfx.playError();
+            showDoorFeedback(false, 'NOT MARTIAN SOIL - TRY AGAIN');
+          }
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // DOOR 4: 8 CIRCLES (RELATIVE PLANET VOLUMES - SELECT JUPITER)
+      // -----------------------------------------------------------------------
+      function buildDoor4() {
+        puzzleSubtitle.textContent = 'SECURITY DOOR 04 // PLANETARY VOLUME SCALE';
+        puzzlePrompt.textContent = 'THE 8 CIRCLES REPRESENT THE VOLUMES OF THE 8 PLANETS. SELECT JUPITER.';
+        doorHintText.textContent = 'CLUE: JUPITER HAS THE LARGEST VOLUME AND MASS IN THE SOLAR SYSTEM.';
+
+        // 8 circles representing relative sizes of the 8 planets (shuffled layout)
+        const circles = [
+          { id: 'mercury', label: 'A', diameter: 18, color: '#94a3b8' },
+          { id: 'neptune', label: 'B', diameter: 42, color: '#2563eb' },
+          { id: 'earth', label: 'C', diameter: 26, color: '#0ea5e9' },
+          { id: 'jupiter', label: 'D', diameter: 96, color: '#ea580c' }, // Largest = Jupiter
+          { id: 'mars', label: 'E', diameter: 21, color: '#ef4444' },
+          { id: 'saturn', label: 'F', diameter: 78, color: '#eab308' },
+          { id: 'uranus', label: 'G', diameter: 46, color: '#2dd4bf' },
+          { id: 'venus', label: 'H', diameter: 25, color: '#facc15' }
+        ];
+
+        let selectedCircleId = null;
+
+        puzzleWorkspace.innerHTML = `
+          <div class="grid grid-cols-4 gap-2.5 sm:gap-4 max-w-4xl mx-auto w-full py-2">
+            ${circles.map(c => `
+              <button type="button" data-circle-id="${c.id}" class="d4-circle-btn flex flex-col items-center justify-between bg-[#141d33] hover:bg-[#1b2744] border-4 border-[#475569] p-2.5 sm:p-3 min-h-[115px] sm:min-h-[140px] transition cursor-pointer">
+                <span class="text-[9px] sm:text-[10px] text-slate-300">SPHERE ${c.label}</span>
+                <div class="flex-1 flex items-center justify-center my-1">
+                  <div style="width:${c.diameter}px; height:${c.diameter}px; background-color:${c.color};" class="rounded-full border-3 border-[#050811] shadow-[inset_-4px_-4px_0_rgba(0,0,0,0.35)]"></div>
+                </div>
+                <span class="text-[8px] text-sky-400">SELECT</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        const circleBtns = Array.from(puzzleWorkspace.querySelectorAll('.d4-circle-btn'));
+        circleBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            sfx.playClick();
+            clearDoorFeedback();
+            selectedCircleId = btn.getAttribute('data-circle-id');
+            circleBtns.forEach((b) => {
+              b.style.borderColor = b.getAttribute('data-circle-id') === selectedCircleId ? '#facc15' : '#475569';
+            });
+          });
+        });
+
+        doorActionButtons.innerHTML = `
+          <button id="d4VerifyBtn" type="button" class="arcade-btn arcade-btn-amber px-4 py-2 text-[9px] sm:text-[10px]">
+            CONFIRM JUPITER
+          </button>
+        `;
+
+        document.getElementById('d4VerifyBtn').addEventListener('click', () => {
+          if (!selectedCircleId) {
+            sfx.playError();
+            showDoorFeedback(false, 'SELECT A CIRCLE FIRST');
+            return;
+          }
+          if (selectedCircleId === 'jupiter') {
+            unlockCurrentDoorAndAdvance();
+          } else {
+            sfx.playError();
+            showDoorFeedback(false, 'NOT JUPITER (CHOOSE LARGEST) - TRY AGAIN');
+          }
+        });
+      }
+
+      // -----------------------------------------------------------------------
+      // DOOR 5: 8 PLANETS FEATURE SUMMARY TYPING CHALLENGE
+      // -----------------------------------------------------------------------
+      function buildDoor5() {
+        puzzleSubtitle.textContent = 'FINAL SECURITY DOOR 05 // PLANETARY DATABASE';
+        puzzlePrompt.textContent = 'TYPE THE MATCHING PLANET NAME BELOW EACH SUMMARY.';
+        doorHintText.textContent = 'ENTER ALL 8 ENGLISH PLANET NAMES (E.G. MERCURY, VENUS...) TO UNLOCK.';
+
+        const riddles = [
+          {
+            answer: 'mercury',
+            clue: '1. Closest to the Sun, smallest in size, with extreme day-night temperature differences.'
+          },
+          {
+            answer: 'venus',
+            clue: '2. Thick CO₂ atmosphere with extreme greenhouse effect; hottest planet and rotates east to west.'
+          },
+          {
+            answer: 'earth',
+            clue: '3. The only known planet with life, with about 71% of its surface covered by liquid water.'
+          },
+          {
+            answer: 'mars',
+            clue: '4. Known as the "Red Planet" due to iron-oxide soil, with seasons similar to Earth.'
+          },
+          {
+            answer: 'jupiter',
+            clue: '5. Largest planet by volume and mass, fastest rotation, featuring the Great Red Spot storm.'
+          },
+          {
+            answer: 'saturn',
+            clue: '6. Has the brightest, most spectacular rings of ice and rock, and the lowest density (less than water).'
+          },
+          {
+            answer: 'uranus',
+            clue: '7. Rotates nearly on its side at a 98-degree tilt and appears blue-green due to methane.'
+          },
+          {
+            answer: 'neptune',
+            clue: '8. Farthest planet from the Sun, deep blue in color, with the strongest winds in the Solar System.'
+          }
+        ];
+
+        puzzleWorkspace.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 max-w-5xl mx-auto w-full my-auto">
+            ${riddles.map((r, idx) => `
+              <div data-riddle-box="${idx}" class="bg-[#141d33] border-2 border-[#475569] p-2.5 flex flex-col justify-between gap-2">
+                <p class="font-clean text-[11px] sm:text-xs text-slate-100 leading-snug">${r.clue}</p>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="text"
+                    data-riddle-input="${idx}"
+                    placeholder="Type planet name..."
+                    autocomplete="off"
+                    spellcheck="false"
+                    class="w-full bg-[#090d1a] border-2 border-[#64748b] focus:border-yellow-400 outline-none px-2.5 py-1.5 font-pixel text-[10px] text-yellow-300 placeholder:text-slate-600"
+                  />
+                  <span data-riddle-status="${idx}" class="text-[9px] text-slate-500 shrink-0 w-8 text-center">[--]</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        const inputs = Array.from(puzzleWorkspace.querySelectorAll('input[data-riddle-input]'));
+        inputs.forEach((inp) => {
+          inp.addEventListener('input', () => {
+            clearDoorFeedback();
+            const idx = inp.getAttribute('data-riddle-input');
+            const box = puzzleWorkspace.querySelector(`[data-riddle-box="${idx}"]`);
+            const stat = puzzleWorkspace.querySelector(`[data-riddle-status="${idx}"]`);
+            box.style.borderColor = '#475569';
+            stat.textContent = '[--]';
+            stat.className = 'text-[9px] text-slate-500 shrink-0 w-8 text-center';
+          });
+        });
+
+        doorActionButtons.innerHTML = `
+          <button id="d5VerifyBtn" type="button" class="arcade-btn arcade-btn-amber px-4 py-2 text-[9px] sm:text-[10px]">
+            UNLOCK FINAL DOOR
+          </button>
+        `;
+
+        document.getElementById('d5VerifyBtn').addEventListener('click', () => {
+          let wrongCount = 0;
+          riddles.forEach((r, idx) => {
+            const inp = puzzleWorkspace.querySelector(`input[data-riddle-input="${idx}"]`);
+            const box = puzzleWorkspace.querySelector(`[data-riddle-box="${idx}"]`);
+            const stat = puzzleWorkspace.querySelector(`[data-riddle-status="${idx}"]`);
+            const val = inp.value.trim().toLowerCase();
+
+            if (val === r.answer) {
+              box.style.borderColor = '#4ade80';
+              stat.textContent = '[OK]';
+              stat.className = 'text-[9px] text-emerald-400 shrink-0 w-8 text-center';
+            } else {
+              wrongCount++;
+              box.style.borderColor = '#f87171';
+              stat.textContent = '[NO]';
+              stat.className = 'text-[9px] text-rose-400 shrink-0 w-8 text-center';
+            }
+          });
+
+          if (wrongCount === 0) {
+            unlockCurrentDoorAndAdvance();
+          } else {
+            sfx.playError();
+            showDoorFeedback(false, `${wrongCount} INCORRECT - FIX RED BOXES`);
+          }
+        });
+      }
+
+      function loadDoor(index) {
+        currentDoorIndex = index;
+        clearDoorFeedback();
+        renderDoorLockPips();
+        doorHeaderTitle.textContent = `SECURITY DOOR ${index + 1} OF 5`;
+
+        updateTopHud({
+          subLabel: 'LOCKED',
+          mainTitle: `DOOR 0${index + 1} / 05`,
+          activeSegments: index,
+          totalSegments: 5,
+          counterText: `${index}/5`,
+          dotColor: 'bg-yellow-400',
+          emblem: 'door'
+        });
+
+        if (index === 0) buildDoor1();
+        else if (index === 1) buildDoor2();
+        else if (index === 2) buildDoor3();
+        else if (index === 3) buildDoor4();
+        else if (index === 4) buildDoor5();
+      }
+
+      // =========================================================================
+      // 6. SCREEN 3: STORAGE ROOM & SPACECRAFT REBOOT ENDING ANIMATION
+      // =========================================================================
+      const endingCanvas = document.getElementById('endingCanvas');
+      const endingCtx = endingCanvas.getContext('2d');
+      const offEnding = document.createElement('canvas');
+      offEnding.width = PIXEL_W;
+      offEnding.height = PIXEL_H;
+      const ectx = offEnding.getContext('2d');
+      ectx.imageSmoothingEnabled = false;
+
+      let endingActive = false;
+      let endingTime = 0;
+      let endingOverlayShown = false;
+
+      function startEndingSequence() {
+        document.getElementById('screenDoors').classList.add('hidden');
+        document.getElementById('screenEnding').classList.remove('hidden');
+        document.getElementById('endingOverlay').classList.add('hidden');
+
+        endingActive = true;
+        endingTime = 0;
+        endingOverlayShown = false;
+        sfx.playVictory();
+
+        updateTopHud({
+          subLabel: 'RESTORED',
+          mainTitle: 'SYS ONLINE',
+          activeSegments: 5,
+          totalSegments: 5,
+          counterText: '100%',
+          dotColor: 'bg-emerald-400',
+          emblem: 'chip'
+        });
+      }
+
+      function drawEndingScene(t) {
+        // Phase A (0..2.2s): Storage room pedestal with glowing Spare Control Chip
+        // Phase B (2.2s+): Cockpit rebooted, bright green/cyan lights & warp stars!
+        if (t < 2.2) {
+          ectx.fillStyle = '#090d1a';
+          ectx.fillRect(0, 0, PIXEL_W, PIXEL_H);
+
+          // Storage room shelves
+          pxRect(ectx, 20, 24, 70, 140, '#1e293b');
+          pxRect(ectx, 230, 24, 70, 140, '#1e293b');
+          for (let sy = 44; sy <= 134; sy += 30) {
+            pxRect(ectx, 26, sy, 58, 4, '#475569');
+            pxRect(ectx, 236, sy, 58, 4, '#475569');
+            pxRect(ectx, 34, sy - 12, 16, 12, '#0284c7');
+            pxRect(ectx, 252, sy - 12, 18, 12, '#eab308');
+          }
+
+          // Central Pedestal & Spare Control Chip
+          pxRect(ectx, 132, 114, 56, 56, '#334155');
+          pxRect(ectx, 138, 108, 44, 8, '#64748b');
+
+          const floatY = Math.round(Math.sin(t * 6) * 3);
+          const chipY = 82 + floatY;
+          // Glowing aura
+          ectx.fillStyle = 'rgba(74, 222, 128, 0.25)';
+          ectx.fillRect(144, chipY - 6, 32, 32);
+
+          // Pixel Microchip
+          pxRect(ectx, 150, chipY, 20, 20, '#10b981');
+          pxRect(ectx, 153, chipY + 3, 14, 14, '#064e3b');
+          pxRect(ectx, 157, chipY + 7, 6, 6, '#facc15');
+          for (let p = 152; p <= 166; p += 4) {
+            pxRect(ectx, p, chipY - 3, 2, 3, '#e2e8f0');
+            pxRect(ectx, p, chipY + 20, 2, 3, '#e2e8f0');
+          }
+
+          // Caption
+          ectx.fillStyle = 'rgba(5, 8, 17, 0.85)';
+          ectx.fillRect(20, PIXEL_H - 24, PIXEL_W - 40, 16);
+          ectx.font = 'bold 6px "Press Start 2P", monospace';
+          ectx.textAlign = 'center';
+          ectx.fillStyle = '#4ade80';
+          ectx.fillText('STORAGE ROOM: SPARE CONTROL CHIP RETRIEVED!', PIXEL_W / 2, PIXEL_H - 13);
+          ectx.textAlign = 'left';
+        } else {
+          // Celebratory rebooted cockpit scene
+          drawCockpitScene(ectx, t, 0, t, 1.0, { x: 0, y: 0 });
+          // Extra emerald/cyan power-restored aura across console
+          ectx.fillStyle = 'rgba(74, 222, 128, 0.14)';
+          ectx.fillRect(46, 10, 228, 126);
+        }
+      }
+
+      let lastEndTs = null;
+      function tickEnding(ts) {
+        if (lastEndTs === null) lastEndTs = ts;
+        const dt = Math.min(0.05, (ts - lastEndTs) / 1000);
+        lastEndTs = ts;
+
+        if (endingActive) {
+          endingTime += dt;
+          drawEndingScene(endingTime);
+
+          if (endingTime >= 2.3 && !endingOverlayShown) {
+            endingOverlayShown = true;
+            document.getElementById('endingOverlay').classList.remove('hidden');
+          }
+
+          const rect = endingCanvas.parentElement.getBoundingClientRect();
+          if (endingCanvas.width !== Math.floor(rect.width) || endingCanvas.height !== Math.floor(rect.height)) {
+            endingCanvas.width = Math.max(320, Math.floor(rect.width));
+            endingCanvas.height = Math.max(200, Math.floor(rect.height));
+            endingCtx.imageSmoothingEnabled = false;
+          }
+          endingCtx.clearRect(0, 0, endingCanvas.width, endingCanvas.height);
+          endingCtx.drawImage(offEnding, 0, 0, PIXEL_W, PIXEL_H, 0, 0, endingCanvas.width, endingCanvas.height);
+        }
+
+        requestAnimationFrame(tickEnding);
+      }
+
+      // =========================================================================
+      // 7. GLOBAL NAVIGATION & MODAL EVENT BINDINGS
+      // =========================================================================
+      document.getElementById('btnGoStorage').addEventListener('click', () => {
+        sfx.playClick();
+        introRunning = false;
+        document.getElementById('screenIntro').classList.add('hidden');
+        document.getElementById('screenDoors').classList.remove('hidden');
+        loadDoor(0);
+      });
+
+      document.getElementById('btnPlayAgain').addEventListener('click', () => {
+        sfx.playClick();
+        endingActive = false;
+        document.getElementById('screenEnding').classList.add('hidden');
+        document.getElementById('screenDoors').classList.add('hidden');
+        document.getElementById('screenIntro').classList.remove('hidden');
+        resetIntroState();
+      });
+
+      // Audio toggle
+      const btnToggleSfx = document.getElementById('btnToggleSfx');
+      btnToggleSfx.addEventListener('click', () => {
+        sfx.enabled = !sfx.enabled;
+        btnToggleSfx.textContent = sfx.enabled ? 'SFX:ON' : 'SFX:OFF';
+        btnToggleSfx.className = sfx.enabled
+          ? 'retro-hud-box px-2.5 py-2 text-[9px] sm:text-[10px] text-emerald-300 hover:border-yellow-400 cursor-pointer'
+          : 'retro-hud-box px-2.5 py-2 text-[9px] sm:text-[10px] text-slate-400 hover:border-yellow-400 cursor-pointer';
+        if (sfx.enabled) sfx.playClick();
+      });
+
+      // Course Info modal
+      const courseModal = document.getElementById('courseModal');
+      document.getElementById('btnCourseInfo').addEventListener('click', () => {
+        sfx.playClick();
+        courseModal.classList.remove('hidden');
+      });
+      document.getElementById('btnCloseCourseModal').addEventListener('click', () => {
+        sfx.playClick();
+        courseModal.classList.add('hidden');
+      });
+      document.getElementById('btnCloseCourseModalBottom').addEventListener('click', () => {
+        sfx.playClick();
+        courseModal.classList.add('hidden');
+      });
+
+      // Start loops on window load
+      window.addEventListener('load', () => {
+        resetIntroState();
+        requestAnimationFrame(tickIntro);
+        requestAnimationFrame(tickEnding);
+      });
+    })();
+  </script>
+</body>
+</html>
